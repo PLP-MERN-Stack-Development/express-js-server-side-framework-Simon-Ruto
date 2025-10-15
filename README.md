@@ -1,62 +1,261 @@
-# Express.js RESTful API Assignment
+# 🛍️ Product API — Express.js Server
 
-This assignment focuses on building a RESTful API using Express.js, implementing proper routing, middleware, and error handling.
+A RESTful API built with **Express.js** and **MongoDB** for managing product data.  
+It supports CRUD operations, filtering, pagination, search, and basic authentication using an API key.
 
-## Assignment Overview
+---
 
-You will:
-1. Set up an Express.js server
-2. Create RESTful API routes for a product resource
-3. Implement custom middleware for logging, authentication, and validation
-4. Add comprehensive error handling
-5. Develop advanced features like filtering, pagination, and search
+## 🚀 Tech Stack
+- **Backend:** Node.js, Express.js  
+- **Database:** MongoDB + Mongoose  
+- **Authentication:** API Key via middleware  
+- **Environment Variables:** dotenv  
+- **Dev Tool:** nodemon  
 
-## Getting Started
+---
 
-1. Accept the GitHub Classroom assignment invitation
-2. Clone your personal repository that was created by GitHub Classroom
-3. Install dependencies:
-   ```
-   npm install
-   ```
-4. Run the server:
-   ```
-   npm start
-   ```
+## ⚙️ Installation & Setup
 
-## Files Included
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/PLP-MERN-Stack-Development/express-js-server-side-framework-Simon-Ruto.git
+cd express-js-server-side-framework-Simon-Ruto
+```
 
-- `Week2-Assignment.md`: Detailed assignment instructions
-- `server.js`: Starter Express.js server file
-- `.env.example`: Example environment variables file
+### 2️⃣ Install Dependencies
+```bash
+npm install
+```
 
-## Requirements
+### 3️⃣ Configure Environment Variables  
+Create a `.env` file in the root directory and add:
 
-- Node.js (v18 or higher)
-- npm or yarn
-- Postman, Insomnia, or curl for API testing
+```
+PORT=3000
+MONGO_URI=your_mongodb_connection_string
+API_KEY=mysecretkey123
+```
 
-## API Endpoints
+### 4️⃣ Run the Server
 
-The API will have the following endpoints:
+**Development mode:**
+```bash
+npm run start
+```
 
-- `GET /api/products`: Get all products
-- `GET /api/products/:id`: Get a specific product
-- `POST /api/products`: Create a new product
-- `PUT /api/products/:id`: Update a product
-- `DELETE /api/products/:id`: Delete a product
+**or manually:**
+```bash
+node server.js
+```
 
-## Submission
+Server runs at:
+```
+http://localhost:3000
+```
 
-Your work will be automatically submitted when you push to your GitHub Classroom repository. Make sure to:
+---
 
-1. Complete all the required API endpoints
-2. Implement the middleware and error handling
-3. Document your API in the README.md
-4. Include examples of requests and responses
+## 🔐 Authentication
 
-## Resources
+Every protected route requires an **API key** in the request header:
 
-- [Express.js Documentation](https://expressjs.com/)
-- [RESTful API Design Best Practices](https://restfulapi.net/)
-- [HTTP Status Codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) 
+| Header Key | Value |
+|-------------|--------|
+| `x-api-key` | `mysecretkey123` |
+
+If missing or invalid, you’ll get:
+```json
+{
+  "message": "Unauthorized: Invalid or missing API key"
+}
+```
+
+---
+
+## 📡 API Endpoints
+
+### 🏠 Root
+**GET /**  
+Returns a welcome message.
+```json
+"Welcome to the Product API! Go to /api/products to see all products."
+```
+
+---
+
+### 📋 Get All Products
+**GET /api/products**
+
+Supports:
+- `category` → filter by category  
+- `page` → specify page number  
+- `limit` → items per page  
+
+Example:
+```
+GET /api/products?category=electronics&page=1&limit=5
+```
+
+✅ Response:
+```json
+{
+  "total": 8,
+  "page": 1,
+  "pages": 2,
+  "products": [
+    {
+      "_id": "670b01d7e4f4a7a5f77e917c",
+      "name": "Laptop",
+      "price": 1200,
+      "category": "electronics",
+      "inStock": true
+    }
+  ]
+}
+```
+
+---
+
+### 🔍 Search Products
+**GET /api/products/search?q=keyword**
+
+Search products by name (case-insensitive).
+
+Example:
+```
+GET /api/products/search?q=laptop
+```
+
+✅ Response:
+```json
+{
+  "count": 1,
+  "products": [
+    {
+      "_id": "670b01d7e4f4a7a5f77e917c",
+      "name": "Laptop",
+      "category": "electronics"
+    }
+  ]
+}
+```
+
+---
+
+### 🧾 Get Product by ID
+**GET /api/products/:id**
+
+Example:
+```
+GET /api/products/670b01d7e4f4a7a5f77e917c
+```
+
+✅ Response:
+```json
+{
+  "_id": "670b01d7e4f4a7a5f77e917c",
+  "name": "Laptop",
+  "price": 1200,
+  "category": "electronics"
+}
+```
+
+---
+
+### ➕ Create Product
+**POST /api/products**
+
+Example Body:
+```json
+{
+  "name": "Microwave",
+  "description": "Compact oven with quick heating",
+  "price": 250,
+  "category": "kitchen",
+  "inStock": true
+}
+```
+
+✅ Response:
+```json
+{
+  "_id": "670b01d7e4f4a7a5f77e91af",
+  "name": "Microwave",
+  "price": 250,
+  "category": "kitchen",
+  "inStock": true
+}
+```
+
+---
+
+### ✏️ Update Product
+**PUT /api/products/:id**
+
+Example Body:
+```json
+{
+  "price": 200,
+  "inStock": false
+}
+```
+
+✅ Response:
+```json
+{
+  "_id": "670b01d7e4f4a7a5f77e917c",
+  "name": "Laptop",
+  "price": 200,
+  "inStock": false
+}
+```
+
+---
+
+### ❌ Delete Product
+**DELETE /api/products/:id**
+
+✅ Response:
+```json
+{
+  "message": "Product deleted"
+}
+```
+
+---
+
+### 📊 Product Statistics
+**GET /api/products/stats**
+
+Returns number of products and average price per category.
+
+✅ Response:
+```json
+[
+  { "_id": "electronics", "totalProducts": 3, "avgPrice": 950 },
+  { "_id": "kitchen", "totalProducts": 2, "avgPrice": 120 }
+]
+```
+
+---
+
+## 🧱 Middleware Used
+
+| Middleware | Purpose |
+|-------------|----------|
+| `logger.js` | Logs incoming requests |
+| `auth.js` | Protects routes using API key |
+| `errorHandler.js` | Handles global errors gracefully |
+
+---
+
+## 🧪 Testing
+
+Use **Postman** to test all endpoints.  
+Make sure to always include your API key in the header:
+
+```
+x-api-key: mysecretkey123
+```
+
+---

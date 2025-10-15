@@ -4,13 +4,30 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
+//Added imports
+const dotenv = require('dotenv');
+const connectDB =  require('./config/db');
+const productRoutes=require('./routes/productRoutes')
+
+//Middleware imports
+const logger = require("./middleware/logger");
+const auth = require("./middleware/auth");
+const errorHandler = require("./middleware/errorHandler");
+
+dotenv.config();
 
 // Initialize Express app
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;   //dotenv used to hide the port
 
 // Middleware setup
 app.use(bodyParser.json());
+app.use(logger); // logs all requests
+
+//ConnectDB
+connectDB();
+
+
 
 // Sample in-memory products database
 let products = [
@@ -45,6 +62,8 @@ app.get('/', (req, res) => {
   res.send('Welcome to the Product API! Go to /api/products to see all products.');
 });
 
+app.use('/api/products', auth, productRoutes);
+
 // TODO: Implement the following routes:
 // GET /api/products - Get all products
 // GET /api/products/:id - Get a specific product
@@ -61,7 +80,7 @@ app.get('/api/products', (req, res) => {
 // - Request logging
 // - Authentication
 // - Error handling
-
+app.use(errorHandler);
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
